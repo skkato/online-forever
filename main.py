@@ -12,6 +12,9 @@ import websockets
 TOKEN = os.environ.get("DISCORD_TOKEN", "")
 STATUS = os.environ.get("DISCORD_STATUS", "online")  # online / dnd / idle
 CUSTOM_STATUS = os.environ.get("CUSTOM_STATUS", "Hey!")
+GAME_NAME = os.environ.get("GAME_NAME", "")  # e.g. "Minecraft" -> shows as "playing Minecraft"
+APPLICATION_ID = os.environ.get("APPLICATION_ID", "")  # Discord app id for Rich Presence assets
+LARGE_IMAGE = os.environ.get("LARGE_IMAGE", "")  # Rich Presence asset key, e.g. "minecraft"
 
 
 # --- Tiny HTTP server so Render (web service) + UptimeRobot see it as alive ---
@@ -53,21 +56,29 @@ def check_token():
 
 
 def build_activity():
-    if not CUSTOM_STATUS:
-        return []
-    return [
-        {
-            "name": "Custom Status",
-            "type": 4,
-            "state": CUSTOM_STATUS,
-            "id": "custom",
-        }
-    ]
+    activities = []
+    if GAME_NAME:
+        act = {"name": GAME_NAME, "type": 0}
+        if APPLICATION_ID:
+            act["application_id"] = APPLICATION_ID
+        if LARGE_IMAGE:
+            act["assets"] = {"large_image": LARGE_IMAGE, "large_text": GAME_NAME}
+        activities.append(act)
+    if CUSTOM_STATUS:
+        activities.append(
+            {
+                "name": "Custom Status",
+                "type": 4,
+                "state": CUSTOM_STATUS,
+                "id": "custom",
+            }
+        )
+    return activities
 
 
 async def discord_gateway():
     uri = "wss://gateway.discord.gg/?v=10&encoding=json"
-    async with websockets.connect(uri) as ws:
+    async with websockets.connect(uri, max_size=None) as ws:
         hello = json.loads(await ws.recv())
         heartbeat_interval = hello["d"]["heartbeat_interval"]
 
