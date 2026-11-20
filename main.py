@@ -93,16 +93,26 @@ async def discord_gateway():
             "op": 2,
             "d": {
                 "token": TOKEN,
+                "capabilities": 16383,
                 "properties": {
-                    "$os": "windows",
-                    "$browser": "chrome",
-                    "$device": "pc",
+                    "os": "Windows",
+                    "browser": "Chrome",
+                    "device": "",
+                    "system_locale": "ja-JP",
+                    "browser_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+                    "browser_version": "131.0.0.0",
+                    "os_version": "10",
+                    "referrer": "",
+                    "referring_domain": "",
                 },
                 "presence": {
                     "status": STATUS,
+                    "since": None,
                     "afk": False,
                     "activities": build_activity(),
                 },
+                "compress": False,
+                "client_state": {"guild_versions": {}},
             },
         }
         await ws.send(json.dumps(identify))
